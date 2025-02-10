@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Todo</title>
+</head>
+<body>
+    <h1>Edit Todo</h1>
+    <form action="/edit/{{ todo['id'] }}" method="post">
+        <input type="text" name="task" value="{{ todo['task'] }}" required>
+        <textarea name="description" placeholder="Enter description">{{ todo['description'] }}</textarea>
+        <select name="status">
+            <option value="Not Started" {% if todo['status'] == 'Not Started' %} selected {% endif %}>Not Started</option>
+            <option value="In Progress" {% if todo['status'] == 'In Progress' %} selected {% endif %}>In Progress</option>
+            <option value="Complete" {% if todo['status'] == 'Complete' %} selected {% endif %}>Complete</option>
+        </select>
+        <button type="submit">Save Changes</button>
+    </form>
+    <br>
+    <a href="/">Back to Todo List</a>
+</body>
+</html>
