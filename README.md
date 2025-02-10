@@ -1,1 +1,1 @@
-Todo app using Flash and sqlite
+Todo app using Flask and sqlite
