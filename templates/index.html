@@ -36,7 +36,7 @@
     </div>
     <script src="{{ url_for('static', filename='game.js') }}"></script>
     <div id="main">
-      <h1>Todo List</h1>
+      <h1>Create a Todo</h1>
       <form action="/add" method="post">
         <input type="text" name="task" placeholder="Enter task" required />
         <textarea name="description" placeholder="Enter description"></textarea>
@@ -62,23 +62,13 @@
 
         <ul>
           {% for subtask in todo['subtasks'] %}
-          <li>
             <input type="checkbox" {% if subtask['is_completed'] %} checked {%
             endif %} onclick="window.location.href='/toggle_subtask/{{
             subtask['id'] }}'"> {{ subtask['subtask'] }}
-          </li>
+            <br/>
           {% endfor %}
         </ul>
 
-        <form action="/add_subtask/{{ todo['id'] }}" method="post">
-          <input
-            type="text"
-            name="subtask"
-            placeholder="Enter subtask"
-            required
-          />
-          <button type="submit">Add Subtask</button>
-        </form>
         <small>Created: {{ todo['created_at'] }}</small>
       </div>
       {% endfor %}

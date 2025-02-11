@@ -94,8 +94,11 @@ def edit_todo(id):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM todos WHERE id = ?", (id,))
     todo = cursor.fetchone()
+    cursor.execute("SELECT * FROM subtasks WHERE todo_id = ?", (id,))
+    todo = dict(todo)
+    todo['subtasks'] = [dict(subtask) for subtask in cursor.fetchall()]
     conn.close()
-    return render_template('edit.html', todo=todo)
+    return render_template('edit.html', todo=todo,)
 
 @app.route('/delete/<int:id>', methods=['GET'])
 def delete_todo(id):
@@ -112,7 +115,7 @@ def add_subtask(todo_id):
     conn.execute("INSERT INTO subtasks (todo_id, subtask) VALUES (?, ?)", (todo_id, subtask))
     conn.commit()
     conn.close()
-    return redirect(url_for('index'))
+    return redirect(url_for('edit_todo', id=todo_id))
 
 @app.route('/toggle_subtask/<int:id>', methods=['GET'])
 def toggle_subtask(id):
@@ -121,6 +124,21 @@ def toggle_subtask(id):
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
+
+@app.route('/delete_subtask/<int:id>', methods=['GET'])
+def delete_subtask(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT todo_id FROM subtasks WHERE id = ?", (id,))
+    todo_id = cursor.fetchone()
+    
+    if todo_id:
+        todo_id = todo_id['todo_id'] 
+    conn.execute("DELETE FROM subtasks WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('edit_todo', id=todo_id))
 
 if __name__ == '__main__':
     init_db()

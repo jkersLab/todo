@@ -17,6 +17,24 @@
         </select>
         <button type="submit">Save Changes</button>
     </form>
+    <ul>
+        {% for subtask in todo['subtasks'] %}
+          <input type="checkbox" {% if subtask['is_completed'] %} checked {%
+          endif %} onclick="window.location.href='/toggle_subtask/{{
+          subtask['id'] }}'"> {{ subtask['subtask'] }}
+          <a href="{{ url_for('delete_subtask', id=subtask['id']) }}">Delete</a>
+          <br/>
+        {% endfor %}
+      </ul>
+    <form action="/add_subtask/{{ todo['id'] }}" method="post">
+        <input
+          type="text"
+          name="subtask"
+          placeholder="Enter subtask"
+          required
+        />
+        <button type="submit">Add Subtask</button>
+      </form>
     <br>
     <a href="/">Back to Todo List</a>
 </body>
