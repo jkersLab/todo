@@ -1,103 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flask Todo App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&family=Roboto+Serif&display=swap" rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&family=Roboto+Serif&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="board">
-        <div class="square" id="square0"></div>
-        <div class="square" id="square1"></div>
-        <div class="square" id="square2"></div>
-        <div class="square" id="square3"></div>
-        <div class="square" id="square4"></div>
-        <div class="square" id="square5"></div>
-        <div class="square" id="square6"></div>
-        <div class="square" id="square7"></div>
-        <div class="square" id="square8"></div>
+      <div class="square" id="square0"></div>
+      <div class="square" id="square1"></div>
+      <div class="square" id="square2"></div>
+      <div class="square" id="square3"></div>
+      <div class="square" id="square4"></div>
+      <div class="square" id="square5"></div>
+      <div class="square" id="square6"></div>
+      <div class="square" id="square7"></div>
+      <div class="square" id="square8"></div>
     </div>
     <div id="endGame">
-        <input type="button" value="Restart" id="restartButton" onclick="restartButton()"/>
+      <input
+        type="button"
+        value="Restart"
+        id="restartButton"
+        onclick="restartButton()"
+      />
     </div>
     <script src="{{ url_for('static', filename='game.js') }}"></script>
-    <h1>Todo List</h1>
-    <form action="/add" method="post">
-        <input type="text" name="task" placeholder="Enter task" required>
+    <div id="main">
+      <h1>Todo List</h1>
+      <form action="/add" method="post">
+        <input type="text" name="task" placeholder="Enter task" required />
         <textarea name="description" placeholder="Enter description"></textarea>
         <select name="status">
-            <option value="Not Started">Not Started</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Complete">Complete</option>
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Complete">Complete</option>
         </select>
         <button type="submit">Add Todo</button>
-    </form>
-    <div style="width: 100%; max-width: 600px; margin: auto;">
-        <h2>Status Summary</h2>
-        <canvas id="statusBarChart"></canvas>
+      </form>
     </div>
 
     <ul>
-        {% for todo in todos %}
-        <li>
-            <strong>{{ todo['task'] }}</strong> ({{ todo['status'] }}) <br>
-            <em>{{ todo['description'] }}</em> <br>
-            <small>Created: {{ todo['created_at'] }}</small>
+      {% for todo in todos %}
+      <div id="list">
+        <strong>{{ todo['task'] }}</strong> ({{ todo['status'] }}) <br />
+        <em>{{ todo['description'] }}</em>
 
-            <a href="/edit/{{ todo['id'] }}">Edit</a> | 
-            <a href="/delete/{{ todo['id'] }}">Delete</a>
+        <br />
+        <a href="/edit/{{ todo['id'] }}">Edit</a> |
+        <a href="/delete/{{ todo['id'] }}">Delete</a>
+        <br />
 
-            <ul>
-                {% for subtask in todo['subtasks'] %}
-                <li>
-                    <input type="checkbox" {% if subtask['is_completed'] %} checked {% endif %} 
-                        onclick="window.location.href='/toggle_subtask/{{ subtask['id'] }}'">
-                    {{ subtask['subtask'] }}
-                </li>
-                {% endfor %}
-            </ul>
+        <ul>
+          {% for subtask in todo['subtasks'] %}
+          <li>
+            <input type="checkbox" {% if subtask['is_completed'] %} checked {%
+            endif %} onclick="window.location.href='/toggle_subtask/{{
+            subtask['id'] }}'"> {{ subtask['subtask'] }}
+          </li>
+          {% endfor %}
+        </ul>
 
-            <form action="/add_subtask/{{ todo['id'] }}" method="post">
-                <input type="text" name="subtask" placeholder="Enter subtask" required>
-                <button type="submit">Add Subtask</button>
-            </form>
-        </li>
-        {% endfor %}
+        <form action="/add_subtask/{{ todo['id'] }}" method="post">
+          <input
+            type="text"
+            name="subtask"
+            placeholder="Enter subtask"
+            required
+          />
+          <button type="submit">Add Subtask</button>
+        </form>
+        <small>Created: {{ todo['created_at'] }}</small>
+      </div>
+      {% endfor %}
     </ul>
-    <script>
-        const ctx = document.getElementById('statusBarChart').getContext('2d');
-        const statusCounts = {{ status_counts | tojson }};  // Pass status_counts to JavaScript
-        
-        const statusLabels = ['Not Started', 'In Progress', 'Complete'];
-        const statusData = [
-            statusCounts['Not Started'] || 0,
-            statusCounts['In Progress'] || 0,
-            statusCounts['Complete'] || 0
-        ];
 
-        const statusBarChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: statusLabels,
-                datasets: [{
-                    label: 'Tasks per Status',
-                    data: statusData,
-                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(75, 192, 192, 0.2)'],
-                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+    <div style="width: 100%; max-width: 600px; margin: auto">
+      <h2>Status Summary</h2>
+      <canvas id="statusBarChart"></canvas>
+    </div>
+    <script>
+      const ctx = document.getElementById('statusBarChart').getContext('2d');
+      const statusCounts = {{ status_counts | tojson }};  // Pass status_counts to JavaScript
+
+      const statusLabels = ['Not Started', 'In Progress', 'Complete'];
+      const statusData = [
+          statusCounts['Not Started'] || 0,
+          statusCounts['In Progress'] || 0,
+          statusCounts['Complete'] || 0
+      ];
+
+      const statusBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: statusLabels,
+              datasets: [{
+                  label: 'Tasks per Status',
+                  data: statusData,
+                  backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                  borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      });
     </script>
-</body>
+  </body>
+
+  <style>
+    body {
+      background-color: #a3d4b0;
+    }
+
+    button {
+      padding: 10px;
+      color: white;
+      background-color: rgb(61, 118, 168);
+      border-radius: 40px;
+      border: none;
+    }
+
+    button:hover {
+      background-color: #000000;
+    }
+
+    #main {
+      width: 600px;
+      border: 15px solid rgba(10, 61, 10, 0.725);
+      box-shadow: 5px 10px;
+      padding: 50px;
+      margin: 20px;
+      background-color: #e9d3cc;
+    }
+
+    #list {
+      width: 600px;
+      border: 15px solid rgba(10, 61, 10, 0.725);
+      box-shadow: 5px 10px;
+      padding: 50px;
+      margin: 20px;
+      background-color: #eae5e3;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    a {
+      color: rgba(10, 61, 10, 0.806);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #000000;
+    }
+  </style>
 </html>
