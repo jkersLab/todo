@@ -36,30 +36,20 @@ def init_db():
 @app.route('/')
 def index():
     conn = get_db()
-    
-    # Fetch all todos
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM todos")
     todos = cursor.fetchall()
     
-    # Convert sqlite3.Row to a dictionary for each todo
     todos_list = []
     for todo in todos:
-        todos_list.append(dict(todo))  # Convert Row to a dictionary
-        
-    # Fetch subtasks for each todo
+        todos_list.append(dict(todo))
     for todo in todos_list:
         cursor.execute("SELECT * FROM subtasks WHERE todo_id = ?", (todo['id'],))
-        todo['subtasks'] = [dict(subtask) for subtask in cursor.fetchall()]  # Convert subtasks to dicts
-
-    # Count how many tasks are in each status
+        todo['subtasks'] = [dict(subtask) for subtask in cursor.fetchall()]
     cursor.execute("SELECT status, COUNT(*) FROM todos GROUP BY status")
-    status_counts = cursor.fetchall()  # This returns a list of tuples (status, count)
-    
-    # Convert the result into a dictionary for easier access in the template
+    status_counts = cursor.fetchall()
     status_count_dict = {status: count for status, count in status_counts}
-
-    conn.close()  # Close the connection only after we're done with the queries
+    conn.close()
 
     return render_template('index.html', todos=todos_list, status_counts=status_count_dict)
 
@@ -104,6 +94,7 @@ def edit_todo(id):
 def delete_todo(id):
     conn = get_db()
     conn.execute("DELETE FROM todos WHERE id = ?", (id,))
+    conn.execute("DELETE FROM subtasks WHERE id = ?", (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
