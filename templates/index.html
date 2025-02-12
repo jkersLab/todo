@@ -49,7 +49,6 @@
       </form>
     </div>
 
-    <ul>
       {% for todo in todos %}
       <div id="list">
         <strong>{{ todo['task'] }}</strong> ({{ todo['status'] }}) <br />
@@ -60,19 +59,18 @@
         <a href="/delete/{{ todo['id'] }}">Delete</a>
         <br />
 
-        <ul>
-          {% for subtask in todo['subtasks'] %}
-            <input type="checkbox" {% if subtask['is_completed'] %} checked {%
-            endif %} onclick="window.location.href='/toggle_subtask/{{
-            subtask['id'] }}'"> {{ subtask['subtask'] }}
-            <br/>
-          {% endfor %}
-        </ul>
+        
+        {% for subtask in todo['subtasks'] %}
+          <input type="checkbox" {% if subtask['is_completed'] %} checked {%
+          endif %} onclick="window.location.href='/toggle_subtask/{{
+          subtask['id'] }}'"> {{ subtask['subtask'] }}
+          <br/>
+        {% endfor %}
+        
 
         <small>Created: {{ todo['created_at'] }}</small>
       </div>
       {% endfor %}
-    </ul>
 
     <div style="width: 100%; max-width: 600px; margin: auto">
       <h2>Status Summary</h2>
@@ -134,8 +132,10 @@
       border: 15px solid rgba(10, 61, 10, 0.725);
       box-shadow: 5px 10px;
       padding: 50px;
-      margin: 20px;
+      margin: auto;
+      margin-top: 20px;
       background-color: #e9d3cc;
+      font-size: 20px;
     }
 
     #list {
@@ -143,10 +143,10 @@
       border: 15px solid rgba(10, 61, 10, 0.725);
       box-shadow: 5px 10px;
       padding: 50px;
-      margin: 20px;
+      margin: auto;
+      margin-top: 20px;
       background-color: #eae5e3;
       text-align: center;
-      font-size: 20px;
     }
 
     a {
