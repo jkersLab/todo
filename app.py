@@ -94,7 +94,15 @@ def edit_todo(id):
 def delete_todo(id):
     conn = get_db()
     conn.execute("DELETE FROM todos WHERE id = ?", (id,))
+    cursor = conn.cursor()
+    cursor.execute("SELECT todo_id FROM subtasks WHERE id = ?", (id,))
+    todo_id = cursor.fetchone()
+    
+    if todo_id:
+        todo_id = todo_id['todo_id'] 
     conn.execute("DELETE FROM subtasks WHERE id = ?", (id,))
+    
+    conn.execute("DELETE FROM subtasks WHERE todo_id = ?", (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
